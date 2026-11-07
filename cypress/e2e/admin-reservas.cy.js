@@ -1,23 +1,22 @@
-describe('Funcionalidade: Administrar Reservas de livros', () => {
+describe("Funcionalidade: Administrar Reservas de livros", () => {
+  beforeEach(() => {
+    cy.loginApp(Cypress.env("ADMIN_EMAIL"), Cypress.env("ADMIN_SENHA"));
+    //cy.loginToken(Cypress.env('TOKEN_COMUM'))
+  });
 
-    beforeEach(() => {
-        cy.loginApp(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_SENHA'))
-        //cy.loginToken(Cypress.env('TOKEN_COMUM'))
+  it("Deve exibir as reservas via intercept", () => {
+    cy.fixture("reservas").then((dadosReserva) => {
+      cy.intercept("GET", "api/reservations", {
+        statusCode: 200,
+        body: dadosReserva,
+      }).as("listarReservas");
+
+      cy.visit("dashboard.html");
+      cy.wait("@listarReservas");
+
+      // Valida diretamente na página se os títulos estão visíveis
+      cy.contains("Novo livro fixture").should("be.visible");
+      cy.contains("livro com boas práticas").should("be.visible");
     });
-    
-    it('Deve exibir as reservas via intercept', () => {
-        cy.fixture('reservas').then((dadosReserva) =>{
-            cy.intercept('GET', 'api/reservations', {
-            statusCode: 200,
-            body: dadosReserva
-        }).as('listarReservas')
-
-        cy.visit('dashboard.html')
-        cy.wait('@listarReservas')
-
-        })
-        
-        
-    });
-
+  });
 });
